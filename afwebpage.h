@@ -16,7 +16,6 @@ input[type=text]:focus {
 }
 
 input[type=submit] {
-  width: 90%;
   background-color: #4CAF50;
   color: white;
   padding: 14px 20px;
@@ -94,9 +93,10 @@ body {
     <label for="fname">Chamada para Alexa (primeiro acionador):</label> <input type="text" name="input_command_one"><br>
     <label for="fname">Chamada para Alexa (segundo acionador):</label> <input type="text" name="input_command_two"><br>
     </div>
-    
-    
-    <input type="submit" value="Submit">
+    <br><br>
+    <div>
+    <input type="submit" value="Submit">&nbsp;&nbsp; <p>Após enviar, aguarde 3 segundos e feche essa página.</p>
+    </div>
     <br>
     <p>By: <a href="https://www.dobitaobyte.com.br">Do bit Ao Byte</a></p>
   </form><br>

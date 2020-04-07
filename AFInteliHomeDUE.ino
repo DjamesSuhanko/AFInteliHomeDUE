@@ -428,9 +428,12 @@ void wifiSetup() {
   loadCredentials();
   // Set WIFI module to AP+STA mode
   WiFi.softAPConfig(staticIP,gateway,subnet);
-  WiFi.softAP(AP_WIFI_SSID,AP_WIFI_PASS);
   WiFi.mode(WIFI_AP_STA);
   //WiFiMulti.addAP(AP_WIFI_SSID, AP_WIFI_PASS);
+  WiFi.softAP(AP_WIFI_SSID,AP_WIFI_PASS);
+  Serial.print("[WiFi] AP Mode, IP address: ");
+  delay(500);
+  Serial.println(WiFi.softAPIP());
   
 
   // Connect
@@ -454,8 +457,6 @@ void wifiSetup() {
   if (WiFi.status() == WL_CONNECTED){
     Serial.printf("[WiFi] STATION Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
     Serial.println(WiFi.macAddress());
-    Serial.print("[WiFi] AP Mode, IP address: ");
-    Serial.println(WiFi.softAPIP());
   }
 
 
@@ -566,5 +567,7 @@ void loop() {
   //if ((WiFiMulti.run() == WL_CONNECTED)){
   //  uint8_t ok = 1;
   //}
+
+  delay(5);
 
 }
