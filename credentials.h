@@ -6,6 +6,14 @@
 #define IS_ADMIN_P   6
 #define IS_ALEXA_ONE 7
 #define IS_ALEXA_TWO 8
+#define RELE0        0
+#define RELE1        2
+#define ON           LOW
+#define OFF          HIGH
+
+#define SERIAL_BAUDRATE 9600
+
+uint8_t relays[2]          = {RELE0,RELE1};
 
 char WIFI_SSID[50]         = {0};
 char WIFI_PASS[50]         = {0};
@@ -15,6 +23,8 @@ char AP_WIFI_SSID[50]      = {0};
 char AP_WIFI_PASS[50]      = {0};
 char LOGIN_USER[50]        = {0};
 char LOGIN_PASS[50]        = {0};
+
+bool relays_state[2] = {OFF};
 
 unsigned long int  HTTP_PORT = 80;
 

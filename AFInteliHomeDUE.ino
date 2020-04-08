@@ -25,6 +25,28 @@
   Se trocar a key e esquecer, só gravando o firmware novamente, melhor não mexer.
 */
 
+bool rele_state_button_1 = HIGH;
+bool rele_state_button_2 = HIGH;
+unsigned long int last_time = millis();
+
+void ISRrele1(){
+  if (digitalRead(1) == LOW){
+    Serial.println("Botao acionado");
+    rele_state_button_1 = (millis()-last_time) > 1000 ? !rele_state_button_1 : rele_state_button_1;
+    digitalWrite(0,rele_state_button_1); 
+    last_time = millis();
+  }
+}
+
+void ISRrele2(){
+  if (digitalRead(3) == LOW){
+    Serial.println("Botao acionado");
+    rele_state_button_2 = (millis()-last_time) > 1000 ? !rele_state_button_2 : rele_state_button_2;
+    digitalWrite(2,rele_state_button_2); 
+    last_time = millis();
+  }
+}
+
 //ESP8266WiFiMulti WiFiMulti;
 
 AsyncWebServer server(HTTP_PORT);
@@ -87,25 +109,25 @@ void loadCredentials() {
     strcpy(ALEXA_COMMAND_TWO,recipe8.c_str());
   }
 
-  Serial.println("---------------------------");
-  Serial.println("L I D O   D O   A R Q U I V O");
-  Serial.print("STA SSID: ");
-  Serial.println(WIFI_SSID);
-  Serial.print("STA password: ");
-  Serial.println(WIFI_PASS);
-  Serial.print("AP SSID: ");
-  Serial.println(AP_WIFI_SSID);
-  Serial.print("AP password: ");
-  Serial.println(AP_WIFI_PASS);
-  Serial.print("Administrador: ");
-  Serial.println(LOGIN_USER);
-  Serial.print("Senha admin: ");
-  Serial.println(LOGIN_PASS);
-  Serial.print("Alexa command 1: ");
-  Serial.println(ALEXA_COMMAND_ONE);
-  Serial.print("Alexa command 2: ");
-  Serial.println(ALEXA_COMMAND_TWO);
-  Serial.println("---------------------------");
+  //Serial.println("---------------------------");
+  //Serial.println("L I D O   D O   A R Q U I V O");
+  //Serial.print("STA SSID: ");
+  //Serial.println(WIFI_SSID);
+  //Serial.print("STA password: ");
+  //Serial.println(WIFI_PASS);
+  //Serial.print("AP SSID: ");
+  //Serial.println(AP_WIFI_SSID);
+  //Serial.print("AP password: ");
+  //Serial.println(AP_WIFI_PASS);
+  //Serial.print("Administrador: ");
+  //Serial.println(LOGIN_USER);
+  //Serial.print("Senha admin: ");
+  //Serial.println(LOGIN_PASS);
+  //Serial.print("Alexa command 1: ");
+  //Serial.println(ALEXA_COMMAND_ONE);
+  //Serial.print("Alexa command 2: ");
+  //Serial.println(ALEXA_COMMAND_TWO);
+  //Serial.println("---------------------------");
 }
 
 void setValuesToVars(uint8_t target, char *content) {
@@ -139,34 +161,34 @@ void setValuesToVars(uint8_t target, char *content) {
 
 //NAO ESQUECER DE ADICIONAR A BARRA ANTES DO NOME DO ARQUIVO
 void writeFile(fs::FS &fs, char *filename, char *content) {
-  Serial.println(content);
+  //Serial.println(content);
   File myFile = LittleFS.open(filename, "w");
   if (!myFile) {
-    Serial.println("Problema ao tentar ler, sorry...");
+    //Serial.println("Problema ao tentar ler, sorry...");
     return;
   }
 
   if (myFile.print(content)) {
-    Serial.println("conteudo salvo");
+    //Serial.println("conteudo salvo");
   }
   else {
-    Serial.println("nao foi possivel salvar");
+    //Serial.println("nao foi possivel salvar");
   }
   myFile.close();
 }
 
 String readFile(fs::FS &fs, char *filename) {
   const char *path = filename;
-  Serial.printf("Reading file: %s\n", path);
+  //Serial.printf("Reading file: %s\n", path);
 
   if (path[0] != '/') {
-    Serial.println("File path needs start with /. Change it.");
+    //Serial.println("File path needs start with /. Change it.");
     return "ouch! slash forgoten";
   }
 
   File file = fs.open(path, "r");
   if (!file || file.isDirectory()) {
-    Serial.println("Failed to open file for reading");
+    //Serial.println("Failed to open file for reading");
     /*infeliz condicao. Arrumar isso*/
     if (strcmp(filename,"/adminuser.txt") == 0 ||  strcmp(filename,"/adminpass.txt") == 0){
       return "admin";
@@ -177,7 +199,7 @@ String readFile(fs::FS &fs, char *filename) {
     return "none";
   }
 
-  Serial.println("Reading from file... ");
+  //Serial.println("Reading from file... ");
   char buf[50];
   memset(buf, 0, 50);
 
@@ -185,14 +207,14 @@ String readFile(fs::FS &fs, char *filename) {
     file.readBytesUntil(0, buf, 49);
   }
   file.close();
-  Serial.println(buf);
+  //Serial.println(buf);
 
   return buf;
 }
 
 void deleteFile(fs::FS &fs, char *filename) {
   if (filename[0] != '/') {
-    Serial.println("File path needs start with /. Change it.");
+    //Serial.println("File path needs start with /. Change it.");
   }
   if (fs.remove(filename)) {
     return;
@@ -200,7 +222,7 @@ void deleteFile(fs::FS &fs, char *filename) {
 }
 
 void onEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
-  Serial.println("Implementar pagina aqui ou no 'login success?'");
+  //Serial.println("Implementar pagina aqui ou no 'login success?'");
 }
 
 
@@ -218,7 +240,7 @@ void serverSetup() {
 
   server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", "Hello, world");
-    Serial.println("HOUVE REQUISICAO!!!!!!!");
+    //Serial.println("HOUVE REQUISICAO!!!!!!!");
   });
 
   // These two callbacks are required for gen1 and gen3 compatibility
@@ -338,7 +360,7 @@ void serverSetup() {
       memset(WIFI_SSID, 0, 51);
       converter = request->getParam("input_ssid")->value();
       strcpy(WIFI_SSID, converter.c_str());
-      Serial.println(WIFI_SSID);
+      //Serial.println(WIFI_SSID);
       setValuesToVars(IS_SSID, WIFI_SSID);
     }
 
@@ -346,49 +368,49 @@ void serverSetup() {
       memset(WIFI_PASS, 0, 51);
       converter = request->getParam("input_passwd")->value();
       strcpy(WIFI_PASS, converter.c_str());
-      Serial.println(WIFI_PASS);
+      //Serial.println(WIFI_PASS);
       setValuesToVars(IS_PASSWD, WIFI_PASS);
     }
 
     if (request->hasParam("input_apssid")) {
       memset(AP_WIFI_SSID, 0, 51);
       strcpy(AP_WIFI_SSID, request->getParam("input_apssid")->value().c_str());
-      Serial.println(AP_WIFI_SSID);
+      //Serial.println(AP_WIFI_SSID);
       setValuesToVars(IS_APSSID, AP_WIFI_SSID);
     }
 
     if (request->hasParam("input_appasswd")) {
       memset(AP_WIFI_PASS, 0, 51);
       strcpy(AP_WIFI_PASS, request->getParam("input_appasswd")->value().c_str());
-      Serial.println(AP_WIFI_PASS);
+      //Serial.println(AP_WIFI_PASS);
       setValuesToVars(IS_APPASSWD, AP_WIFI_PASS);
     }
 
     if (request->hasParam("input_admin_u")) {
       memset(LOGIN_USER, 0, 51);
       strcpy(LOGIN_USER, request->getParam("input_admin_u")->value().c_str());
-      Serial.println(LOGIN_USER);
+      //Serial.println(LOGIN_USER);
       setValuesToVars(IS_ADMIN_U, LOGIN_USER);
     }
 
     if (request->hasParam("input_admin_p")) {
       memset(LOGIN_PASS, 0, 51);
       strcpy(LOGIN_PASS, request->getParam("input_admin_p")->value().c_str());
-      Serial.println(LOGIN_PASS);
+      //Serial.println(LOGIN_PASS);
       setValuesToVars(IS_ADMIN_P, LOGIN_PASS);
     }
 
     if (request->hasParam("input_command_one")) {
       memset(ALEXA_COMMAND_ONE, 0, 51);
       strcpy(ALEXA_COMMAND_ONE, request->getParam("input_command_one")->value().c_str());
-      Serial.println(ALEXA_COMMAND_ONE);
+      //Serial.println(ALEXA_COMMAND_ONE);
       setValuesToVars(IS_ALEXA_ONE, ALEXA_COMMAND_ONE);
     }
 
     if (request->hasParam("input_command_two")) {
       memset(ALEXA_COMMAND_TWO, 0, 51);
       strcpy(ALEXA_COMMAND_TWO, request->getParam("input_command_two")->value().c_str());
-      Serial.println(ALEXA_COMMAND_TWO);
+      //Serial.println(ALEXA_COMMAND_TWO);
       setValuesToVars(IS_ALEXA_TWO, ALEXA_COMMAND_TWO);
     }
 
@@ -412,15 +434,12 @@ void serverSetup() {
 
 // -----------------------------------------------------------------------------
 
-#define SERIAL_BAUDRATE 9600
-#define RELE0           0
-#define RELE1           2
 
 // -----------------------------------------------------------------------------
 // Wifi
 // -----------------------------------------------------------------------------
 
-uint8_t relays[2] = {RELE0,RELE1};
+
 
 void wifiSetup() {
 
@@ -431,32 +450,32 @@ void wifiSetup() {
   WiFi.mode(WIFI_AP_STA);
   //WiFiMulti.addAP(AP_WIFI_SSID, AP_WIFI_PASS);
   WiFi.softAP(AP_WIFI_SSID,AP_WIFI_PASS);
-  Serial.print("[WiFi] AP Mode, IP address: ");
+  //Serial.print("[WiFi] AP Mode, IP address: ");
   delay(500);
-  Serial.println(WiFi.softAPIP());
+  //Serial.println(WiFi.softAPIP());
   
 
   // Connect
-  Serial.printf("[WIFI] Connecting to %s ", WIFI_SSID);
+  //Serial.printf("[WIFI] Connecting to %s ", WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASS);
 
   // Wait
   unsigned long int timeout = millis();
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
+    //Serial.print(".");
     delay(100);
     if ((millis()-timeout) > 15000){
       break; 
     }
     
   }
-  Serial.println();
+  //Serial.println();
   delay(2000);
 
   // Connected!
   if (WiFi.status() == WL_CONNECTED){
-    Serial.printf("[WiFi] STATION Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
-    Serial.println(WiFi.macAddress());
+    //Serial.printf("[WiFi] STATION Mode, SSID: %s, IP address: %s\n", WiFi.SSID().c_str(), WiFi.localIP().toString().c_str());
+    //Serial.println(WiFi.macAddress());
   }
 
 
@@ -465,9 +484,9 @@ void wifiSetup() {
 void setup() {
 
   // Init serial port and clean garbage
-  Serial.begin(SERIAL_BAUDRATE);
-  Serial.println();
-  Serial.println();
+  //Serial.begin(SERIAL_BAUDRATE);
+  //Serial.println();
+  //Serial.println();
 
   // RELES
   pinMode(RELE0, OUTPUT);
@@ -476,7 +495,7 @@ void setup() {
   digitalWrite(RELE1, HIGH);
 
   if (!LittleFS.begin()) {
-    Serial.println("Couldn't mount the filesystem.");
+    //Serial.println("Couldn't mount the filesystem.");
   }
 
   delay(2000); //pra dar tempo de ler tudo na serial
@@ -530,13 +549,14 @@ void setup() {
     // if (1 == device_id) digitalWrite(RELAY2_PIN, state);
     // if (2 == device_id) analogWrite(LED1_PIN, value);
 
-    Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name, state ? "ON" : "OFF", value);
+    //Serial.printf("[MAIN] Device #%d (%s) state: %s value: %d\n", device_id, device_name, state ? "ON" : "OFF", value);
 
     // For the example we are turning the same LED on and off regardless fo the device triggered or the value
     //digitalWrite(RELE0, !state); // we are nor-ing the state because our LED has inverse logic.
 
 
-    digitalWrite(relays[device_id],!state);    
+    digitalWrite(relays[device_id],!state); 
+    relays_state[device_id] = !state;   
     /*
     if (device_id == 0){
       digitalWrite(RELE0, !state); // we are nor-ing the state because our LED has inverse logic.
@@ -561,13 +581,14 @@ void loop() {
   static unsigned long last = millis();
   if (millis() - last > 5000) {
     last = millis();
-    Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
+    //Serial.printf("[MAIN] Free heap: %d bytes\n", ESP.getFreeHeap());
   }
 
   //if ((WiFiMulti.run() == WL_CONNECTED)){
   //  uint8_t ok = 1;
   //}
-
+  ISRrele1();
+  ISRrele2();
   delay(5);
 
 }
